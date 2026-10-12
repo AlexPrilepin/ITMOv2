@@ -1,0 +1,32 @@
+.venv/Scripts/python.exe scripts/mcp_demo.py
+tools: ['check_diff']
+
+=== корректный diff: OK
+{
+  "chars": 59,
+  "limit": 20000,
+  "within_limit": true,
+  "expected_http_status": 200,
+  "secrets_found": [],
+  "safe_to_send_to_llm": true,
+  "redacted_diff": null
+}
+
+=== diff с секретом: OK
+{
+  "chars": 77,
+  "limit": 20000,
+  "within_limit": true,
+  "expected_http_status": 200,
+  "secrets_found": [
+    {
+      "line": 3,
+      "kind": "assignment"
+    }
+  ],
+  "safe_to_send_to_llm": false,
+  "redacted_diff": "diff --git a/app/x.py b/app/x.py\n@@ -1 +1 @@\n+API_KEY = \"[REDACTED]\""
+}
+
+=== ошибочный вход: ERROR
+Error executing tool check_diff: input is not a unified diff: expected 'diff --git', '---/+++' headers or '@@' hunks
