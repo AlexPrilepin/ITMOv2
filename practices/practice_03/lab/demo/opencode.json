@@ -11,9 +11,9 @@
       },
       "models": {
         "itmo-agent": {
-          "name": "ITMO local 64k",
+          "name": "ITMO local 32k",
           "limit": {
-            "context": 65536,
+            "context": 32768,
             "output": 4096
           }
         }
@@ -25,7 +25,7 @@
       "description": "Read-only local repository assistant",
       "mode": "primary",
       "prompt": "{file:./repo-system.txt}",
-      "steps": 8,
+      "steps": 12,
       "permission": {
         "*": "deny",
         "read": "allow",
