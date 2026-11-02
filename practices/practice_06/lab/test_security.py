@@ -4,9 +4,14 @@
 (вывод — evidence/before/test_security.txt), после исправлений проходит.
 """
 
+import json
+import threading
 import unittest
+from http.server import ThreadingHTTPServer
+from urllib.error import HTTPError
+from urllib.request import Request, urlopen
 
-from service import Shop
+from service import Shop, make_handler
 
 
 class SecurityTest(unittest.TestCase):
@@ -123,6 +128,14 @@ class SecurityTest(unittest.TestCase):
                 self.assertNotIn("TEST_BOB", str(body))
         self.assertIn("TEST_BOB", self.shop.sandbox.read("files/bob/receipt.txt"))
 
+    def test_t9_export_profiles_not_available_through_assistant(self):
+        # J2 судьи: ПДн выгружаются только прямым /admin/export, помощник — никому
+        for who in ("alice", "staff"):
+            with self.subTest(who=who):
+                status, _ = self.request("POST", "/assistant/execute",
+                                         {"decision": {"tool": "export_profiles", "arguments": {}}}, self.login(who))
+                self.assertEqual(status, 403)
+
     def test_t9_delete_tree_not_available_even_for_staff(self):
         status, _ = self.request("POST", "/assistant/execute",
                                  {"decision": {"tool": "delete_tree", "arguments": {"path": "files"}}}, self.login("staff"))
@@ -147,6 +160,53 @@ class SecurityTest(unittest.TestCase):
     def test_t13_review_requires_session(self):
         self.assertEqual(self.request("POST", "/reviews", {"product": "chair", "text": "spam"})[0], 401)
         self.assertEqual(self.request("POST", "/reviews", {"product": "sofa", "text": "x"}, self.login())[0], 400)
+
+
+class HttpHeadersSecurityTest(unittest.TestCase):
+    """T15 (CORS/CSRF) и T16 (clickjacking, CSP) — на уровне HTTP-транспорта."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.shop = Shop()
+        cls.server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(cls.shop))
+        cls.server.daemon_threads = True
+        cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
+        cls.thread.start()
+        cls.base = f"http://127.0.0.1:{cls.server.server_port}"
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server.shutdown()
+        cls.thread.join(timeout=5)
+        cls.server.server_close()
+        cls.shop.close()
+
+    def call(self, method, path, body=None, headers=None):
+        data = json.dumps(body).encode() if body is not None else None
+        request = Request(self.base + path, data=data, method=method,
+                          headers={"Content-Type": "application/json", **(headers or {})})
+        try:
+            response = urlopen(request, timeout=5)
+        except HTTPError as exc:
+            response = exc
+        with response:
+            return response.status, response.headers, response.read().decode()
+
+    def token(self):
+        return json.loads(self.call("POST", "/login", {"username": "alice", "password": "learn-alice"})[2])["token"]
+
+    def test_t15_no_cors_headers_so_cross_site_requests_cannot_use_token(self):
+        _, headers, _ = self.call("GET", "/orders", headers={"X-Token": self.token(), "Origin": "https://evil.example"})
+        self.assertIsNone(headers.get("Access-Control-Allow-Origin"))
+        self.assertIsNone(headers.get("Set-Cookie"))
+
+    def test_t16_html_cannot_be_framed_and_has_csp(self):
+        status, headers, _ = self.call("GET", "/reviews/view", headers={"X-Token": self.token()})
+        self.assertEqual(status, 200)
+        self.assertEqual(headers.get("X-Frame-Options"), "DENY")
+        self.assertIn("default-src 'none'", headers.get("Content-Security-Policy", ""))
+        self.assertIn("frame-ancestors 'none'", headers.get("Content-Security-Policy", ""))
+        self.assertEqual(headers.get("X-Content-Type-Options"), "nosniff")
 
 
 if __name__ == "__main__":

@@ -13,8 +13,9 @@ from sandbox import Sandbox
 
 
 class Shop:
-    CUSTOMER_TOOLS = {"read_file"}
-    STAFF_TOOLS = {"read_file", "export_profiles"}  # delete_tree через помощника не доступен никому (T9)
+    # T9 + J2 судьи: помощнику доступно только чтение чека. export_profiles и delete_tree через помощника
+    # не доступны никому — ПДн сотрудник выгружает прямым /admin/export, где действует его роль, а не текст модели.
+    ASSISTANT_TOOLS = {"read_file"}
     MAX_REVIEW = 1000
     PROTECTED_ROUTES = {
         ("GET", "/profile"), ("GET", "/search"), ("GET", "/orders"), ("POST", "/orders"),
@@ -168,8 +169,7 @@ class Shop:
                     or not isinstance(decision.get("arguments", {}), dict):
                 return 400, {"error": "invalid decision"}
             tool, arguments = decision["tool"], decision.get("arguments", {})
-            allowed_tools = self.STAFF_TOOLS if session["role"] == "staff" else self.CUSTOMER_TOOLS
-            allowed = tool in allowed_tools
+            allowed = tool in self.ASSISTANT_TOOLS
             if allowed and tool == "read_file":
                 path = arguments.get("path")
                 parts = path.split("/") if isinstance(path, str) else []
@@ -178,9 +178,7 @@ class Shop:
             self.audit(session, "assistant_execute", tool=tool, allowed=allowed)  # T12
             if not allowed:
                 return 403, {"error": "tool not allowed"}
-            if tool == "read_file":
-                return 200, {"content": self.sandbox.read(arguments["path"])}
-            return 200, self.rows("SELECT * FROM profiles")
+            return 200, {"content": self.sandbox.read(arguments["path"])}
         return 404, {"error": "not found"}
 
     def user_by_id(self, user_id):
@@ -210,6 +208,10 @@ def make_handler(shop):
             data = (result if html else json.dumps(result, ensure_ascii=False)).encode("utf-8")
             self.send_response(status)
             self.send_header("Content-Type", "text/html; charset=utf-8" if html else "application/json; charset=utf-8")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            if html:  # T6/T16: без скриптов и встраивания во фреймы
+                self.send_header("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'")
+                self.send_header("X-Frame-Options", "DENY")
             self.send_header("Content-Length", str(len(data)))
             self.end_headers()
             self.wfile.write(data)

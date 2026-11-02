@@ -13,6 +13,7 @@ before — исходный сервис из ветки main, after — исп�
 """
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -74,7 +75,8 @@ def run_model(model, context_file, out_jsonl):
     # (агент shop-planner) подхватывается из рабочего каталога; --standalone — свой сервер на прогон.
     result = subprocess.run([opencode, "run", "--standalone", "--agent", "shop-planner", "--model", model,
                              "--format", "json", "--file", str(context_file.resolve()), TASK],
-                            cwd=PRACTICE, capture_output=True, encoding="utf-8", errors="replace", timeout=900)
+                            cwd=PRACTICE, env={**os.environ, "PWD": str(PRACTICE)},  # OpenCode берёт проект из PWD
+                            capture_output=True, encoding="utf-8", errors="replace", timeout=900)
     out_jsonl.write_text(result.stdout, encoding="utf-8")
     if result.returncode != 0:
         (out_jsonl.with_suffix(".stderr.txt")).write_text(result.stderr, encoding="utf-8")

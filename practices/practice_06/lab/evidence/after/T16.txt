@@ -1,0 +1,4 @@
+T16: clickjacking и отсутствие CSP у HTML
+
+> GET /reviews/view
+< 200 headers: {"Server": "BaseHTTP/0.6 Python/3.10.12", "Date": "Mon, 02 Nov 2026 06:11:37 GMT", "Content-Type": "text/html; charset=utf-8", "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'", "X-Frame-Options": "DENY", "Content-Length": "26"}

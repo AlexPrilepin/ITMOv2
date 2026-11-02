@@ -89,5 +89,19 @@
     "vulnerable": true,
     "effect": "статус 201",
     "evidence": "T13.txt"
+  },
+  {
+    "id": "T15",
+    "title": "CSRF/CORS: чужой сайт может отправить запрос с токеном и прочитать ответ",
+    "vulnerable": false,
+    "effect": "Access-Control-Allow-Origin: нет, cookie: нет — токен только в заголовке X-Token",
+    "evidence": "T15.txt"
+  },
+  {
+    "id": "T16",
+    "title": "clickjacking и отсутствие CSP у HTML",
+    "vulnerable": true,
+    "effect": "X-Frame-Options: нет, CSP: нет",
+    "evidence": "T16.txt"
   }
 ]

@@ -1,3 +1,5 @@
+test_t15_no_cors_headers_so_cross_site_requests_cannot_use_token (test_security.HttpHeadersSecurityTest) ... ok
+test_t16_html_cannot_be_framed_and_has_csp (test_security.HttpHeadersSecurityTest) ... FAIL
 test_t11_bad_input_has_no_internal_details (test_security.SecurityTest) ... ERROR
 test_t11_non_string_fields_are_rejected_not_crashing (test_security.SecurityTest) ... ERROR
 test_t13_review_requires_session (test_security.SecurityTest) ... FAIL
@@ -15,16 +17,16 @@ test_t8_t10_context_is_own_order_and_marks_untrusted_reviews (test_security.Secu
 test_t9_customer_cannot_run_dangerous_tools (test_security.SecurityTest) ... ERROR
 test_t9_delete_tree_not_available_even_for_staff (test_security.SecurityTest) ... FAIL
 test_t9_execute_requires_session (test_security.SecurityTest) ... FAIL
-
+test_t9_export_profiles_not_available_through_assistant (test_security.SecurityTest) ... 
 ======================================================================
 ERROR: test_t11_bad_input_has_no_internal_details (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 134, in test_t11_bad_input_has_no_internal_details
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 147, in test_t11_bad_input_has_no_internal_details
     status, body = self.request("POST", "/orders", {}, self.login())
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 19, in request
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 24, in request
     return self.shop.dispatch(method, path, body or {}, headers or {})
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/service.py", line 66, in dispatch
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/service.py", line 66, in dispatch
     product = body["product"]
 KeyError: 'product'
 
@@ -32,11 +34,11 @@ KeyError: 'product'
 ERROR: test_t11_non_string_fields_are_rejected_not_crashing (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 142, in test_t11_non_string_fields_are_rejected_not_crashing
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 155, in test_t11_non_string_fields_are_rejected_not_crashing
     self.assertEqual(self.request("POST", "/login", {"username": ["alice"], "password": "x"})[0], 401)
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 19, in request
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 24, in request
     return self.shop.dispatch(method, path, body or {}, headers or {})
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/service.py", line 50, in dispatch
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/service.py", line 50, in dispatch
     account = self.accounts.get(body.get("username"))
 TypeError: unhashable type: 'list'
 
@@ -44,21 +46,29 @@ TypeError: unhashable type: 'list'
 ERROR: test_t9_customer_cannot_run_dangerous_tools (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 124, in test_t9_customer_cannot_run_dangerous_tools
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 129, in test_t9_customer_cannot_run_dangerous_tools
     self.assertIn("TEST_BOB", self.shop.sandbox.read("files/bob/receipt.txt"))
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/sandbox.py", line 28, in read
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/sandbox.py", line 28, in read
     return self.path(name).read_text(encoding="utf-8")
   File "/usr/lib/python3.10/pathlib.py", line 1134, in read_text
     with self.open(mode='r', encoding=encoding, errors=errors) as f:
   File "/usr/lib/python3.10/pathlib.py", line 1119, in open
     return self._accessor.open(self, mode, buffering, encoding, errors,
-FileNotFoundError: [Errno 2] No such file or directory: '/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/itmo-practice-06-9k5uubww/files/bob/receipt.txt'
+FileNotFoundError: [Errno 2] No such file or directory: '/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/itmo-practice-06-lvb70yne/files/bob/receipt.txt'
+
+======================================================================
+FAIL: test_t16_html_cannot_be_framed_and_has_csp (test_security.HttpHeadersSecurityTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 206, in test_t16_html_cannot_be_framed_and_has_csp
+    self.assertEqual(headers.get("X-Frame-Options"), "DENY")
+AssertionError: None != 'DENY'
 
 ======================================================================
 FAIL: test_t13_review_requires_session (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 148, in test_t13_review_requires_session
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 161, in test_t13_review_requires_session
     self.assertEqual(self.request("POST", "/reviews", {"product": "chair", "text": "spam"})[0], 401)
 AssertionError: 201 != 401
 
@@ -66,7 +76,7 @@ AssertionError: 201 != 401
 FAIL: test_t1_client_role_header_does_not_grant_export (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 28, in test_t1_client_role_header_does_not_grant_export
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 33, in test_t1_client_role_header_does_not_grant_export
     self.assertEqual(self.request("GET", "/admin/export", headers={**self.login(), "X-Role": "staff"})[0], 403)
 AssertionError: 200 != 403
 
@@ -74,7 +84,7 @@ AssertionError: 200 != 403
 FAIL: test_t1_staff_session_exports_without_header (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 33, in test_t1_staff_session_exports_without_header
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 38, in test_t1_staff_session_exports_without_header
     self.assertEqual((status, len(profiles)), (200, 2))
 AssertionError: Tuples differ: (403, 1) != (200, 2)
 
@@ -89,7 +99,7 @@ First differing element 0:
 FAIL: test_t2_files_only_own (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 47, in test_t2_files_only_own
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 52, in test_t2_files_only_own
     self.assertEqual(self.request("GET", "/files?user=alice&path=receipt.txt")[0], 401)
 AssertionError: 200 != 401
 
@@ -97,7 +107,7 @@ AssertionError: 200 != 401
 FAIL: test_t2_orders_only_own (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 41, in test_t2_orders_only_own
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 46, in test_t2_orders_only_own
     self.assertEqual(self.request("GET", "/orders")[0], 401)
 AssertionError: 200 != 401
 
@@ -105,7 +115,7 @@ AssertionError: 200 != 401
 FAIL: test_t2_profile_requires_owner (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 37, in test_t2_profile_requires_owner
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 42, in test_t2_profile_requires_owner
     self.assertEqual(self.request("GET", "/profile?id=1")[0], 401)
 AssertionError: 200 != 401
 
@@ -113,7 +123,7 @@ AssertionError: 200 != 401
 FAIL: test_t3_profile_id_is_not_sql (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 53, in test_t3_profile_id_is_not_sql
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 58, in test_t3_profile_id_is_not_sql
     self.assertEqual(status, 400)
 AssertionError: 200 != 400
 
@@ -121,7 +131,7 @@ AssertionError: 200 != 400
 FAIL: test_t3_search_is_parameterized_and_staff_only (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 56, in test_t3_search_is_parameterized_and_staff_only
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 61, in test_t3_search_is_parameterized_and_staff_only
     self.assertEqual(self.request("GET", "/search?q=%27%20OR%20%271%27%3D%271", headers=self.login())[0], 403)
 AssertionError: 200 != 403
 
@@ -129,7 +139,7 @@ AssertionError: 200 != 403
 FAIL: test_t4_price_comes_from_catalog (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 63, in test_t4_price_comes_from_catalog
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 68, in test_t4_price_comes_from_catalog
     self.assertEqual((status, order["price"]), (201, 5000))
 AssertionError: Tuples differ: (201, 1) != (201, 5000)
 
@@ -144,7 +154,7 @@ First differing element 1:
 FAIL: test_t5_files_cannot_reach_private_note (test_security.SecurityTest) (path='/files?user=../private&path=operator-note.txt')
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 70, in test_t5_files_cannot_reach_private_note
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 75, in test_t5_files_cannot_reach_private_note
     self.assertIn(status, (400, 403))
 AssertionError: 200 not found in (400, 403)
 
@@ -152,7 +162,7 @@ AssertionError: 200 not found in (400, 403)
 FAIL: test_t5_files_cannot_reach_private_note (test_security.SecurityTest) (path='/files?user=alice&path=../../private/operator-note.txt')
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 70, in test_t5_files_cannot_reach_private_note
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 75, in test_t5_files_cannot_reach_private_note
     self.assertIn(status, (400, 403))
 AssertionError: 200 not found in (400, 403)
 
@@ -160,7 +170,7 @@ AssertionError: 200 not found in (400, 403)
 FAIL: test_t6_reviews_are_escaped (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 78, in test_t6_reviews_are_escaped
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 83, in test_t6_reviews_are_escaped
     self.assertNotIn('<b id="probe">', html)
 AssertionError: '<b id="probe">' unexpectedly found in '<html><body><p><b id="probe">x</b></p></body></html>'
 
@@ -168,7 +178,7 @@ AssertionError: '<b id="probe">' unexpectedly found in '<html><body><p><b id="pr
 FAIL: test_t7_debug_logs_not_public_and_without_secrets (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 84, in test_t7_debug_logs_not_public_and_without_secrets
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 89, in test_t7_debug_logs_not_public_and_without_secrets
     self.assertIn(self.request("GET", "/debug/logs")[0], (401, 404))
 AssertionError: 200 not found in (401, 404)
 
@@ -176,7 +186,7 @@ AssertionError: 200 not found in (401, 404)
 FAIL: test_t8_t10_context_is_own_order_and_marks_untrusted_reviews (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 96, in test_t8_t10_context_is_own_order_and_marks_untrusted_reviews
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 101, in test_t8_t10_context_is_own_order_and_marks_untrusted_reviews
     self.assertEqual(self.request("GET", "/assistant/context?order_id=1")[0], 401)
 AssertionError: 200 != 401
 
@@ -184,7 +194,7 @@ AssertionError: 200 != 401
 FAIL: test_t9_customer_cannot_run_dangerous_tools (test_security.SecurityTest) (tool='read_file', args={'path': 'files/bob/receipt.txt'})
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 122, in test_t9_customer_cannot_run_dangerous_tools
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 127, in test_t9_customer_cannot_run_dangerous_tools
     self.assertEqual(status, 403)
 AssertionError: 200 != 403
 
@@ -192,7 +202,7 @@ AssertionError: 200 != 403
 FAIL: test_t9_customer_cannot_run_dangerous_tools (test_security.SecurityTest) (tool='read_file', args={'path': 'private/operator-note.txt'})
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 122, in test_t9_customer_cannot_run_dangerous_tools
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 127, in test_t9_customer_cannot_run_dangerous_tools
     self.assertEqual(status, 403)
 AssertionError: 200 != 403
 
@@ -200,7 +210,7 @@ AssertionError: 200 != 403
 FAIL: test_t9_customer_cannot_run_dangerous_tools (test_security.SecurityTest) (tool='export_profiles', args={})
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 122, in test_t9_customer_cannot_run_dangerous_tools
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 127, in test_t9_customer_cannot_run_dangerous_tools
     self.assertEqual(status, 403)
 AssertionError: 200 != 403
 
@@ -208,7 +218,7 @@ AssertionError: 200 != 403
 FAIL: test_t9_customer_cannot_run_dangerous_tools (test_security.SecurityTest) (tool='delete_tree', args={'path': 'files'})
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 122, in test_t9_customer_cannot_run_dangerous_tools
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 127, in test_t9_customer_cannot_run_dangerous_tools
     self.assertEqual(status, 403)
 AssertionError: 200 != 403
 
@@ -216,7 +226,7 @@ AssertionError: 200 != 403
 FAIL: test_t9_delete_tree_not_available_even_for_staff (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 129, in test_t9_delete_tree_not_available_even_for_staff
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 142, in test_t9_delete_tree_not_available_even_for_staff
     self.assertEqual(status, 403)
 AssertionError: 200 != 403
 
@@ -224,11 +234,27 @@ AssertionError: 200 != 403
 FAIL: test_t9_execute_requires_session (test_security.SecurityTest)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.4kQlEUQTLu/test_security.py", line 110, in test_t9_execute_requires_session
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 115, in test_t9_execute_requires_session
     self.assertEqual(self.request("POST", "/assistant/execute", decision)[0], 401)
 AssertionError: 200 != 401
 
+======================================================================
+FAIL: test_t9_export_profiles_not_available_through_assistant (test_security.SecurityTest) (who='alice')
 ----------------------------------------------------------------------
-Ran 18 tests in 0.019s
+Traceback (most recent call last):
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 137, in test_t9_export_profiles_not_available_through_assistant
+    self.assertEqual(status, 403)
+AssertionError: 200 != 403
 
-FAILED (failures=20, errors=3)
+======================================================================
+FAIL: test_t9_export_profiles_not_available_through_assistant (test_security.SecurityTest) (who='staff')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/tmp.fuHcW9VQEA/test_security.py", line 137, in test_t9_export_profiles_not_available_through_assistant
+    self.assertEqual(status, 403)
+AssertionError: 200 != 403
+
+----------------------------------------------------------------------
+Ran 21 tests in 0.531s
+
+FAILED (failures=23, errors=3)

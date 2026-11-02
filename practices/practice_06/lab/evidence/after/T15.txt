@@ -1,0 +1,4 @@
+T15: CSRF/CORS: чужой сайт может отправить запрос с токеном и прочитать ответ
+
+> GET /orders  Origin: https://evil.example  X-Token: <token>
+< 200 headers: {"Server": "BaseHTTP/0.6 Python/3.10.12", "Date": "Mon, 02 Nov 2026 06:11:37 GMT", "Content-Type": "application/json; charset=utf-8", "X-Content-Type-Options": "nosniff", "Content-Length": "60"}

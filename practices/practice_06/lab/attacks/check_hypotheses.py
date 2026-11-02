@@ -74,6 +74,17 @@ def call(method, path, body=None, headers=None):
     return response.status, parsed
 
 
+def call_headers(method, path, headers=None):
+    request = Request(BASE + path, method=method, headers=headers or {})
+    try:
+        response = urlopen(request, timeout=5)
+    except HTTPError as exc:
+        response = exc
+    with response:
+        response.read()
+        return response.status, dict(response.headers)
+
+
 def login(user):
     return {"X-Token": call("POST", "/login", {"username": user, "password": f"learn-{user}"})[1]["token"]}
 
@@ -170,6 +181,18 @@ def run_after_restart(rec):
 
     s, r = rec.step("POST", "/reviews", {"product": "chair", "text": "анонимный отзыв"})
     rec.verdict("T13", "отзыв без аутентификации", s == 201, f"статус {s}")
+
+    s, h = call_headers("GET", "/orders", {**alice, "Origin": "https://evil.example"})
+    rec.log.append(f"> GET /orders  Origin: https://evil.example  X-Token: <token>\n< {s} headers: {json.dumps(h)}\n")
+    cors = h.get("Access-Control-Allow-Origin")
+    rec.verdict("T15", "CSRF/CORS: чужой сайт может отправить запрос с токеном и прочитать ответ", bool(cors) or "Set-Cookie" in h,
+                f"Access-Control-Allow-Origin: {cors or 'нет'}, cookie: {'да' if 'Set-Cookie' in h else 'нет'} — токен только в заголовке X-Token")
+
+    s, h = call_headers("GET", "/reviews/view", alice)
+    rec.log.append(f"> GET /reviews/view\n< {s} headers: {json.dumps(h)}\n")
+    framed = h.get("X-Frame-Options") != "DENY" or "frame-ancestors" not in h.get("Content-Security-Policy", "")
+    rec.verdict("T16", "clickjacking и отсутствие CSP у HTML", framed,
+                f"X-Frame-Options: {h.get('X-Frame-Options', 'нет')}, CSP: {h.get('Content-Security-Policy', 'нет')}")
 
 
 def main():
