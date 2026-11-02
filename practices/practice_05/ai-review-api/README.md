@@ -1,4 +1,8 @@
-# AI-review API: практика 4 (среда агента, skill, MCP, hook)
+# AI-review API: практика 5 (OpenSpec + Spec Kit)
+
+Копия проекта из практики 4, доработанная в практике 5: фича B (REL-1) через OpenSpec, UI и логика SEC-1/OUT-1/QA-1 через Spec Kit. Карта сдачи — `../README.md`.
+
+## Исходное описание (практика 4)
 
 Маленький FastAPI-сервис помощника ревьюера PR из практик 1–2. Исходное состояние кода —
 ровно то, что получилось после `docs/TRAINING_PR.diff`: `POST /api/reviews` и `GET /health`,
