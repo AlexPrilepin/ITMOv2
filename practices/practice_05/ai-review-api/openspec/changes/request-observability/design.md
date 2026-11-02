@@ -75,6 +75,27 @@ Constraints:
   4. Run sh scripts/check.sh and confirm tests pass.
 - Rollback: Remove the middleware registration; no data migration required.
 - Deployment: No config changes required; logs go to the existing logger handlers/STDOUT.
+ 
+## Interaction Diagram
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant M as Middleware (/api/reviews)
+    participant H as Handler POST /api/reviews
+    participant S as ReviewService / LLM
+    participant L as Logger
+
+    C->>M: POST /api/reviews {diff}
+    M->>M: generate request_id; start timer
+    M->>H: call_next(request)
+    H->>S: process diff (no logging of payload)
+    S-->>H: result / errors (502/504 possible)
+    H-->>M: Response (200/400/413/422/502/504)
+    M->>M: stop timer; compute duration_ms
+    M->>L: log {request_id, duration_ms, status}
+    M-->>C: Response (unchanged)
+```
 
 ## Open Questions
 
