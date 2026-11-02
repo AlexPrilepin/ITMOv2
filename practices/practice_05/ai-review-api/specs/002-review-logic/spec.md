@@ -1,0 +1,110 @@
+# Feature Specification: Structured Review & Secret Masking (POST /api/reviews)
+
+Feature Branch: [002-review-logic]
+
+Created: 2026-11-02
+
+Status: Draft
+
+Input: User description: "Структурированный отзыв и маскирование секретов в POST /api/reviews (SEC-1, OUT-1, QA-1). Команда 2 (логика). Не менять коды ошибок A/B; 200-ответ меняется c {comment} на summary/risks/checks."
+
+## User Scenarios & Testing (mandatory)
+
+### User Story 1 - Secrets are masked before LLM (Priority: P1)
+
+As a service operator, I need the system to mask secrets in the diff before any LLM call, so no secret values are ever sent to external dependencies.
+
+Why this priority: Preventing leakage of secrets is critical and must hold for every execution path (SEC-1).
+
+Independent Test: Using a recording LLM stub that captures the prompt, verify that a diff containing secret types results in the LLM receiving [SECRET] markers instead of raw secret values; validate that only a redacted copy is sent.
+
+Acceptance Scenarios:
+
+1. Given a diff contains a private key block, When POST /api/reviews is processed, Then any private key content is replaced with [SECRET] in the LLM input and the original content is not sent to the LLM.
+2. Given a diff contains a password or API token value, When POST /api/reviews is processed, Then these values are replaced with [SECRET] in the LLM input and the original content is not sent to the LLM.
+
+---
+
+### User Story 2 - Structured response summary/risks/checks (Priority: P2)
+
+As a reviewer consumer, I need a structured response with a summary, up to three risks (with evidence), and checks, so that I can quickly understand findings without parsing free-form text.
+
+Why this priority: Improves clarity and aligns with OUT-1; also explicitly changes the 200-OK contract from {"comment": "..."} to structured JSON.
+
+Independent Test: For a valid diff and a cooperative LLM returning compatible content, verify that the API returns 200 with fields summary (string), risks (array length ≤ 3, each with evidence), and checks (array of strings); verify that error codes 400/413/422/502/504 remain unchanged.
+
+Acceptance Scenarios:
+
+1. Given a valid diff and a valid LLM output, When POST /api/reviews completes successfully, Then the response body contains summary, risks (≤ 3), and checks.
+2. Given the LLM proposes more than three risks, When POST /api/reviews completes successfully, Then only up to three risks are included in the response.
+
+---
+
+### User Story 3 - Unconfirmed risks are dropped (Priority: P3)
+
+As a reviewer consumer, I need only confirmed risks to be included, so that unsupported or vague risks do not appear in the response (QA-1).
+
+Why this priority: Ensures response quality and traceability to diff content or rules.
+
+Independent Test: Provide LLM output containing both confirmed and unconfirmed risks; verify that only risks with valid evidence (diff_line or rule) are included in the final response.
+
+Acceptance Scenarios:
+
+1. Given a risk referencing a specific file/line that exists in the diff with a matching proof snippet, When building the response, Then the risk is included with its evidence.
+2. Given a risk referencing a non-existent file or line, When building the response, Then the risk is excluded from the response.
+3. Given a risk citing a recognized rule (e.g., SEC-1), When building the response, Then the risk is included with rule evidence; otherwise, unrecognized rule references are excluded.
+
+### Edge Cases
+
+- Unparseable LLM output: When the LLM returns unstructured or non-JSON text, Then the system still returns 200 with a summary derived from the LLM text and empty arrays for risks and checks.
+- More than three risks: When the LLM returns more than three confirmed risks, Then only up to three risks are included; excess risks are omitted while preserving contract.
+- Risk with invalid evidence reference: When a risk references a diff line that cannot be validated against the diff, Then that risk is excluded.
+
+## Requirements (mandatory)
+
+### Functional Requirements
+
+- FR-001 (SEC-1): The system MUST mask secret values in the diff before any LLM call by replacing each detected secret value with the literal marker [SECRET]. Secret types include at minimum: private keys (PEM/SSH), passwords and passphrases, API tokens and API keys, and cloud provider credentials (e.g., AWS access credentials).
+- FR-002 (SEC-1): The system MUST send only the redacted copy of the diff to the LLM; the original diff MUST NOT be sent to the LLM or any external dependency.
+- FR-003 (OUT-1): On success (HTTP 200), the system MUST return a structured JSON object with fields: summary (string), risks (array of up to 3 items), and checks (array of strings). This changes the current contract from {"comment": "..."} to a structured response.
+- FR-004 (OUT-1): Each risk item MUST contain title (string) and evidence. Evidence MUST be either:
+  - diff_line: with file (string), line (integer), and proof (string), or
+  - rule: with rule (string) referencing an allowed rule identifier.
+- FR-005 (QA-1): Only risks with valid evidence MUST be included. Risks without verifiable diff_line evidence or without a recognized rule evidence MUST be excluded.
+- FR-006 (OUT-1): If the LLM output is not parseable or lacks structure, the system MUST still return 200 with a non-empty summary derived from the LLM text and empty risks and checks arrays.
+- FR-007: The system MUST cap the number of included risks at three; excess confirmed risks are omitted while preserving order of selection.
+- FR-008: Error behaviors from Feature A and B MUST remain unchanged: 422/400/413 for input validation and 502/504 for LLM dependency errors with the same response bodies.
+
+Examples and non-goals:
+- The spec defines “what” not “how”: implementation details like specific regex patterns or parsing heuristics are out of scope here and belong in the implementation plan.
+- The marker [SECRET] MUST be used for all masked values.
+
+Open Questions:
+- FR-009: [NEEDS CLARIFICATION: Define the line numbering scheme for evidence.diff_line — unified diff hunk numbering vs original file line numbers.] 
+- FR-010: [NEEDS CLARIFICATION: Specify the selection policy for capping to 3 risks — preserve LLM order or apply a severity/priority if provided.] 
+- FR-011: [NEEDS CLARIFICATION: Define the exact default summary text when LLM text is empty or whitespace (e.g., "review summary unavailable").]
+
+### Key Entities (include if feature involves data)
+
+- Review: Represents the structured result of POST /api/reviews on success. Attributes: summary (string), risks (array of Risk, length ≤ 3), checks (array of Check).
+- Risk: Represents a potential issue identified in the review. Attributes: title (string), evidence (Evidence), optional metadata (e.g., severity) may be present but is not required by contract.
+- Evidence: Proof supporting a Risk. Two forms:
+  - diff_line: file (string), line (integer), proof (string).
+  - rule: rule (string) — allowed identifiers include SEC-1, API-1, REL-1, OUT-1, SCOPE-1, QA-1, OBS-1.
+- Check: A simple string describing an observation or verification step.
+
+## Success Criteria (mandatory)
+
+### Measurable Outcomes
+
+- SC-001: For diffs containing at least one secret type, the LLM input MUST contain [SECRET] for each such value and MUST NOT contain the original value (verified via recording LLM stub) in 100% of test cases.
+- SC-002: For successful requests, 100% of responses include summary (non-empty string), risks (array length ≤ 3), and checks (array), and do not include a legacy comment field.
+- SC-003: When the LLM suggests N ≥ 4 confirmed risks, the response includes exactly 3 risks, preserving the specified selection policy.
+- SC-004: When a risk references a non-existent file/line or an unrecognized rule, that risk is excluded in 100% of cases.
+- SC-005: When the LLM output is non-parseable, the system returns 200 with a non-empty summary derived from the LLM text and empty risks and checks arrays in 100% of cases.
+
+## Assumptions
+
+- The list of secret types specified in FR-001 is sufficient for this feature’s acceptance; additional provider-specific types can be added later without changing this contract.
+- Evidence.rule allowed identifiers are limited to the rule set named in Key Entities; expansions will be additive and backward compatible.
+- Error response formats for 422/400/413/502/504 are stable and out of scope for change in this feature.
