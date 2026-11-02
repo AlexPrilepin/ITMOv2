@@ -77,6 +77,14 @@ def run_model(model, context_file, out_jsonl):
                              "--format", "json", "--file", str(context_file.resolve()), TASK],
                             cwd=PRACTICE, env={**os.environ, "PWD": str(PRACTICE)},  # OpenCode берёт проект из PWD
                             capture_output=True, encoding="utf-8", errors="replace", timeout=900)
+    if "Agent not found" in result.stdout and shutil.which("bash"):
+        # запасной путь: как ручной запуск судьи — cd в каталог практики внутри bash
+        def q(value):
+            return "'" + str(value).replace("'", "'\\''") + "'"
+        command = (f"cd {q(PRACTICE.as_posix())} && opencode run --standalone --agent shop-planner --model {q(model)} "
+                   f"--format json --file {q(context_file.resolve().as_posix())} {q(TASK)}")
+        result = subprocess.run([shutil.which("bash"), "-c", command], capture_output=True,
+                                encoding="utf-8", errors="replace", timeout=900)
     out_jsonl.write_text(result.stdout, encoding="utf-8")
     if result.returncode != 0:
         (out_jsonl.with_suffix(".stderr.txt")).write_text(result.stderr, encoding="utf-8")
