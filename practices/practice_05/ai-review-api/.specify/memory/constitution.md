@@ -1,50 +1,86 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+- Change Type: Constitution Update (populate .specify/memory/constitution.md)
+- Source Documents: AGENTS.md, docs/requirements.md
+- Scope: Documentation only; no code changes; OpenSpec (openspec/) untouched
+- Impact: Aligns memory constitution with existing project rules; no runtime impact
+- Version: 1.0.0; Ratified/Last Amended: 2026-11-02
+-->
+
+# ai-review-api Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Контракт
+Контракт проекта — файл docs/requirements.md, содержащий правила SEC-1, API-1, REL-1, OUT-1, SCOPE-1, QA-1, OBS-1. Изменение контракта допускается только по прямому поручению человека.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Test-First (NON-NEGOTIABLE)
+- Перед реализацией пишется падающий тест (используется skill test-driven-development).
+- Единственная проверка — команда sh scripts/check.sh (или make check).
+- Тесты не ослаблять и не удалять.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Только совет (SCOPE-1)
+Сервис только советует: не пишет код и не действует в GitHub. Решение всегда принимает человек.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Приватность
+- Перед отправкой diff во внешний LLM секреты (токены, пароли, приватные ключи) маскируются (SEC-1).
+- В лог пишутся только request_id, длительность и статус; diff и ответ модели не логируются (OBS-1).
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Простота
+- Технологии: Python + FastAPI.
+- UI: статическая HTML-страница на vanilla JS, отдаваемая тем же FastAPI.
+- Без сборщиков, фреймворков и новых зависимостей без согласия человека.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### VI. Общий контракт команд
+- UI и серверная логика заранее согласуют HTTP-контракт (запросы, ответы, коды ошибок, состояния) до генерации кода.
+- Любое изменение контракта синхронно обновляет обе спецификации (UI и сервер).
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+## Нормативные правила (из docs/requirements.md)
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+- SEC-1 — Маскирование секретов: перед отправкой diff во внешний LLM из него удаляются токены, пароли и приватные ключи.
+- API-1 — Ограничение размера diff: diff длиннее 20 000 символов отклоняется с HTTP 413; ровно 20 000 символов — допускается.
+- REL-1 — Надёжность вызова LLM (по желанию, в оценку ДЗ не входит):
+  - Таймаут ожидания ответа LLM — 10 секунд (в тестах можно уменьшать).
+  - Таймаут → HTTP 504, тело {"error": "llm_timeout"}.
+  - Любое другое исключение → HTTP 502, тело {"error": "llm_unavailable"}.
+  - Нет трассировки стека в ответе и нет HTTP 500.
+  - Все сценарии Фичи A (валидации) продолжают работать.
+- OUT-1 — Выходной формат: ответ содержит summary, risks (не больше трёх) и checks.
+- SCOPE-1 — Только совет: сервис не пишет код и не действует в GitHub.
+- QA-1 — Обоснование рисков: риск попадает в ответ только если подтверждён строкой diff или правилом.
+- OBS-1 — Логирование: в лог — только request_id, длительность и статус; diff и ответ модели не логируются.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## API-спецификация и рабочие практики
+
+### Фича A: входная валидация (API-1)
+- Эндпоинт: POST /api/reviews
+- Тело запроса: JSON {"diff": "<строка>"}
+- Коды ответов (совпадают с use case и E2E-сценариями практики 1):
+  1) Нет поля diff или оно не строка → HTTP 422, тело {"error": "<причина>"}.
+  2) diff пустой или из одних пробелов → HTTP 400, тело {"error": "diff is empty"}.
+  3) Длина diff > 20000 → HTTP 413, тело {"error": "diff too large", "limit": 20000}.
+  4) Ровно 20000 символов → запрос принимается.
+  5) В случаях 1–3 LLM не вызывается.
+
+### Рабочие практики (из AGENTS.md)
+- Команды выполняются в Git Bash из папки проекта.
+- Единственная команда проверки: sh scripts/check.sh (или make check).
+- После каждой правки файла hook запускает проверку и дописывает результат к ответу инструмента ([check-after-edit] ... -> PASS/FAIL). При FAIL исправлять причину до продолжения.
+- Пример теста: tests/test_review_service.py; API-тесты: tests/test_api.py.
+- Для новой фичи — skill test-driven-development: сначала падающий тест, затем реализация.
+- Перед работой с любым diff — MCP tool check_diff (сервер diff-tools): проверяет API-1 и SEC-1. Не угадывать лимиты и секреты вручную.
+- Для вопросов по FastAPI — MCP Context7; сверять версию документации с установленной.
+- Показывать только diff и команды, которые действительно выполнены; не утверждать о невыполненных командах.
+- Не менять docs/requirements.md, scripts/check.sh и .opencode/plugins/ без прямого поручения.
+- Не ослаблять и не удалять тесты ради зелёного результата.
+- Не делать git commit без приёмки человеком.
+- Не логировать содержимое diff и ответ модели (OBS-1).
+- OpenSpec присутствует в openspec/; Spec Kit работает в своих каталогах — их не трогать.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+- Поправки к этой Конституции и контракту (docs/requirements.md) принимаются только решением человека.
+- Принятие поправки сопровождается повышением версии Конституции и фиксацией даты.
+- Любое изменение контракта требует синхронного обновления спецификаций UI и сервера.
+- OpenSpec (openspec/) — автономен; изменения в его каталогах не производятся в рамках этой Конституции без отдельного поручения.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-11-02 | **Last Amended**: 2026-11-02
