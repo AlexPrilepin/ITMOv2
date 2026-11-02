@@ -1,0 +1,6 @@
+T1: клиент с заголовком X-Role: staff получает экспорт
+
+> GET /admin/export
+> headers: {"X-Token": "<token>", "X-Role": "staff"}
+> body: null
+< 200 [{"id": 1, "name": "TEST_ALICE", "email": "alice@example.invalid", "address": "TEST_ADDRESS_A"}, {"id": 2, "name": "TEST_BOB", "email": "bob@example.invalid", "address": "TEST_ADDRESS_B"}]

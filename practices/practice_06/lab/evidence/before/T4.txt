@@ -1,0 +1,6 @@
+T4: цена задаётся клиентом
+
+> POST /orders
+> headers: {"X-Token": "<token>"}
+> body: {"product": "chair", "price": 1}
+< 201 {"id": 3, "owner": 1, "product": "chair", "price": 1}

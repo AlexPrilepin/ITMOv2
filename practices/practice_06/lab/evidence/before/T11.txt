@@ -1,0 +1,6 @@
+T11: ответ об ошибке раскрывает внутренние детали
+
+> POST /orders
+> headers: {"X-Token": "<token>"}
+> body: {}
+< 500 {"error": "'product'", "type": "KeyError"}

@@ -1,0 +1,6 @@
+T13: отзыв без аутентификации
+
+> POST /reviews
+> headers: {}
+> body: {"product": "chair", "text": "анонимный отзыв"}
+< 201 {"saved": true}

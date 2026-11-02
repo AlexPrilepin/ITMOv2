@@ -1,0 +1,6 @@
+T7: журнал без аутентификации с паролями и токенами
+
+> GET /debug/logs
+> headers: {}
+> body: null
+< 401 {"error": "login required"}

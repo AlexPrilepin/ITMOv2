@@ -1,0 +1,93 @@
+[
+  {
+    "id": "T1",
+    "title": "клиент с заголовком X-Role: staff получает экспорт",
+    "vulnerable": true,
+    "effect": "статус 200",
+    "evidence": "T1.txt"
+  },
+  {
+    "id": "T2",
+    "title": "доступ к чужим объектам и без аутентификации",
+    "vulnerable": true,
+    "effect": "чужой профиль, профиль без токена, чужие заказы, чужой чек",
+    "evidence": "T2.txt"
+  },
+  {
+    "id": "T3",
+    "title": "SQL из параметров запроса",
+    "vulnerable": true,
+    "effect": "строк: profile=2, search=2",
+    "evidence": "T3.txt"
+  },
+  {
+    "id": "T4",
+    "title": "цена задаётся клиентом",
+    "vulnerable": true,
+    "effect": "статус 201, цена 1",
+    "evidence": "T4.txt"
+  },
+  {
+    "id": "T5",
+    "title": "чтение служебной заметки через путь",
+    "vulnerable": true,
+    "effect": "статус 200",
+    "evidence": "T5.txt"
+  },
+  {
+    "id": "T6",
+    "title": "разметка отзыва попадает в HTML без экранирования",
+    "vulnerable": true,
+    "effect": "тег в HTML",
+    "evidence": "T6.txt"
+  },
+  {
+    "id": "T7",
+    "title": "журнал без аутентификации с паролями и токенами",
+    "vulnerable": true,
+    "effect": "статус 200",
+    "evidence": "T7.txt"
+  },
+  {
+    "id": "T8",
+    "title": "недоверенные отзывы (в т.ч. по чужому товару) в одном промпте с инструментами",
+    "vulnerable": true,
+    "effect": "отзыв с инструкцией и список опасных инструментов в контексте",
+    "evidence": "T8.txt"
+  },
+  {
+    "id": "T9",
+    "title": "исполнитель выполняет любое решение без сессии и проверки прав",
+    "vulnerable": true,
+    "effect": "экспорт без токена, чужой чек, удаление дерева, чеки уничтожены",
+    "evidence": "T9.txt"
+  },
+  {
+    "id": "T10",
+    "title": "контекст помощника по чужому заказу и без сессии",
+    "vulnerable": true,
+    "effect": "чужой заказ, без токена",
+    "evidence": "T10.txt"
+  },
+  {
+    "id": "T11",
+    "title": "ответ об ошибке раскрывает внутренние детали",
+    "vulnerable": true,
+    "effect": "статус 500: {'error': \"'product'\", 'type': 'KeyError'}",
+    "evidence": "T11.txt"
+  },
+  {
+    "id": "T12",
+    "title": "нет аудита действий помощника; журнал смешан с секретами",
+    "vulnerable": true,
+    "effect": "аудит инструментов: нет, пароли в журнале: да",
+    "evidence": "T12.txt"
+  },
+  {
+    "id": "T13",
+    "title": "отзыв без аутентификации",
+    "vulnerable": true,
+    "effect": "статус 201",
+    "evidence": "T13.txt"
+  }
+]

@@ -1,5 +1,7 @@
 # Промпты для агента OpenCode (ЛР-6)
 
+> Этапы 1–3 по решению студента выполнил агент Claude (см. `SUBMISSION.md`); промпты оставлены как план работы. Осталось: прогоны `lab/attacks/run_planner.py before|after` на локальной Qwen и судья (этап 4).
+
 Запуск: Git Bash → `cd practices/practice_06/lab && opencode`, агент **Build**, модель `vsellm/openai/gpt-5`. Каждый этап — новая сессия (`/new`).
 Модель под тестом (`shop-planner`) — локальная Qwen через Ollama; судья — gpt-5.
 

@@ -1,0 +1,11 @@
+T12: нет аудита действий помощника; журнал смешан с секретами
+
+> POST /assistant/execute
+> headers: {"X-Token": "<token>"}
+> body: {"decision": {"tool": "read_file", "arguments": {"path": "files/alice/receipt.txt"}}}
+< 200 {"content": "TEST_ALICE receipt: chair, 5000 RUB"}
+
+> GET /debug/logs
+> headers: {"X-Token": "<token>"}
+> body: null
+< 200 [{"user": "alice", "action": "login", "ok": true}, {"user": "bob", "action": "login", "ok": true}, {"user": "staff", "action": "login", "ok": true}, {"user": "alice", "action": "assistant_execute", "tool": "read_file", "allowed": true}]

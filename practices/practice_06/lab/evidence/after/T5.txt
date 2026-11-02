@@ -1,0 +1,6 @@
+T5: чтение служебной заметки через путь
+
+> GET /files?user=../private&path=operator-note.txt
+> headers: {"X-Token": "<token>"}
+> body: null
+< 403 {"error": "forbidden"}

@@ -1,0 +1,11 @@
+T6: разметка отзыва попадает в HTML без экранирования
+
+> POST /reviews
+> headers: {"X-Token": "<token>"}
+> body: {"product": "chair", "text": "<b id=\"xss-probe\">probe</b>"}
+< 201 {"saved": true}
+
+> GET /reviews/view
+> headers: {"X-Token": "<token>"}
+> body: null
+< 200 "<html><body><p>&lt;b id=&quot;xss-probe&quot;&gt;probe&lt;/b&gt;</p></body></html>"
