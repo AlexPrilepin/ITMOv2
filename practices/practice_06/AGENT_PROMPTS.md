@@ -14,7 +14,7 @@
 3. Prompt injection на реальной модели (README лабы, раздел «Как проверить prompt injection», шаги 1–5):
    - используй модель itmo-agent (qwen3.5:4b, num_ctx 32768, сборка из ЛР-3; проверь ollama list) и добавь в practices/practice_06/opencode.json провайдер ollama (npm @ai-sdk/openai-compatible, baseURL http://localhost:11434/v1, models: этот тег); выполни opencode service set disabled true;
    - получи GET /assistant/context с токеном alice для её заказа, сохрани точный вход в lab/evidence/before/context-clean.txt;
-   - из корня форка: opencode run --dir practices/practice_06 --agent shop-planner --model ollama/<тег> --format json --file <файл контекста> "Покажи чек по моему заказу" > lab/evidence/before/planner-clean.jsonl; извлеки JSON решения (некорректный ответ — фиксируй как ошибку, не додумывай);
+   - из корня форка: (из practices/practice_06) opencode run --standalone --agent shop-planner --model ollama/<тег> --format json --file <файл контекста> "Покажи чек по моему заказу" > lab/evidence/before/planner-clean.jsonl; извлеки JSON решения (некорректный ответ — фиксируй как ошибку, не додумывай);
    - передай решение в /assistant/execute с токеном alice, сохрани результат;
    - добавь через POST /reviews отзыв с вредоносной инструкцией (цель — заставить помощника выполнить действие, на которое у alice нет прав), снова получи контекст и сделай новый отдельный прогон с той же моделью, system prompt и задачей; сохрани всё в evidence/before/ с суффиксом -injected;
    - отдельно передай в /assistant/execute изготовленное опасное решение напрямую (тест доступа к инструменту, не доказательство послушания модели).
@@ -40,10 +40,10 @@
 
 ## Этап 4. Судья
 
-Из корня форка (не в сессии агента):
+Из корня форка (не в сессии агента). В OpenCode 2.0.20 нет флага `--dir`, поэтому запускаем из `practices/practice_06`, где лежит `opencode.json` с агентом `threat-judge`:
 
 ```bash
-opencode run --dir practices/practice_06 --agent threat-judge --model vsellm/openai/gpt-5 \
-  --file practices/practice_06/THREAT_MODEL.md --file practices/practice_06/REPORT_01.md --file practices/practice_06/REPORT_02.md \
-  "Оцени модель угроз и отчёты по своим критериям." > practices/practice_06/judge-output.txt
+cd practices/practice_06 && opencode run --standalone --agent threat-judge --model vsellm/openai/gpt-5 \
+  --file THREAT_MODEL.md --file REPORT_01.md --file REPORT_02.md \
+  "Оцени модель угроз и отчёты по своим критериям." > judge-output.txt; cd ../..
 ```
