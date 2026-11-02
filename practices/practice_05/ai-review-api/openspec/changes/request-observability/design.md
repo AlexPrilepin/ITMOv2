@@ -87,12 +87,12 @@ sequenceDiagram
     participant L as Logger
 
     C->>M: POST /api/reviews {diff}
-    M->>M: generate request_id; start timer
+    M->>M: generate request_id, start timer
     M->>H: call_next(request)
     H->>S: process diff (no logging of payload)
     S-->>H: result / errors (502/504 possible)
     H-->>M: Response (200/400/413/422/502/504)
-    M->>M: stop timer; compute duration_ms
+    M->>M: stop timer, compute duration_ms
     M->>L: log {request_id, duration_ms, status}
     M-->>C: Response (unchanged)
 ```
