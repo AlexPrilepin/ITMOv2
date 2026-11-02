@@ -18,7 +18,7 @@
 ## 3. API mapping and dependencies
 
 - [x] 3.1 Update app/api.py to catch LLMTimeoutError → 504 {"error":"llm_timeout"}; catch LLMUnavailableError → 502 {"error":"llm_unavailable"}
-- [ ] 3.2 Set default timeout=10.0 in app/dependencies.py; keep Feature A behavior intact
+- [x] 3.2 Set default timeout=10.0 in app/dependencies.py; keep Feature A behavior intact
 
 ## 4. Validation and baseline
 
