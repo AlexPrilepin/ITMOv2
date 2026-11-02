@@ -80,7 +80,7 @@ Implementation:
 
 | Круг | Найдено | Кто исправил | Доказательство |
 |---|---|---|---|
-| 1 | R1 тело PEM уходило в LLM; R2 diff_line-риск без сверки с diff (QA-1/D7); R3 реализация раньше тестов, отметок нет; R4 ослаблен test_review_service; R5 StubLLM не JSON | агент OpenCode (R1–R4) | tests/test_logic_redaction.py, test_logic_risks.py, test_logic_proof_masking.py, test_logic_prompt.py; hook-лог FAIL→PASS |
+| 1 | R1 тело PEM уходило в LLM; R2 diff_line-риск без сверки с diff (QA-1/D7); R3 реализация раньше тестов, отметок нет; R4 ослаблен test_review_service; R5 StubLLM не JSON | агент OpenCode (R1–R4) | tests/test_logic_redaction.py, test_logic_risks.py, test_logic_proof_masking.py, test_logic_prompt.py; hook-лог FAIL→PASS (docs/sdd/hook-runs.txt) |
 | 2 | R6 шесть форматов секретов не маскировались (DB_PASSWORD, SECRET_KEY, AWS_SECRET_ACCESS_KEY, JSON "password", Bearer в dict, PEM внутри строки); R7 секрет из ответа модели попадал в title/summary/checks | агент OpenCode | новые тесты в test_logic_redaction.py, test_logic_proof_masking.py |
 | 3 | R8 ReDoS: регулярки присваиваний давали кубический перебор — строка 20 000 символов (лимит API-1) обрабатывалась > 600 с до вызова LLM, timeout REL-1 не защищал; R5 и отметки [x] так и не сделаны агентом за два круга | ревьюер (TDD: сначала красный тест) | tests/test_logic_redaction_perf.py (red: > 600 с; green: 0.04 с), tests/test_logic_stub_llm.py, app/redaction.py (ASSIGNMENT), app/dependencies.py (StubLLM) |
 
