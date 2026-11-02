@@ -75,7 +75,15 @@ class FeatureAValidationTest(unittest.TestCase):
         self.assertEqual(len(diff), 20000)
         response = self.client.post("/api/reviews", json={"diff": diff})
         self.assertEqual(response.status_code, 200)
-        self.assertIn("comment", response.json())
+        body = response.json()
+        # Contract per specs/review-api-contract.md
+        self.assertIn("summary", body)
+        self.assertIn("risks", body)
+        self.assertIsInstance(body["risks"], list)
+        self.assertIn("checks", body)
+        self.assertIsInstance(body["checks"], list)
+        self.assertIn("secrets_masked", body)
+        self.assertIsInstance(body["secrets_masked"], int)
 
     def test_llm_not_called_when_diff_missing(self):
         # Ломка: валидация после вызова LLM -> spy видит вызов.

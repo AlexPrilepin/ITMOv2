@@ -16,10 +16,18 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ok"})
 
-    def test_review_returns_comment(self):
+    def test_review_returns_structured_response(self):
         response = self.client.post("/api/reviews", json={"diff": SMALL_DIFF})
         self.assertEqual(response.status_code, 200)
-        self.assertIn("comment", response.json())
+        body = response.json()
+        # Contract per specs/review-api-contract.md
+        self.assertIn("summary", body)
+        self.assertIn("risks", body)
+        self.assertIsInstance(body["risks"], list)
+        self.assertIn("checks", body)
+        self.assertIsInstance(body["checks"], list)
+        self.assertIn("secrets_masked", body)
+        self.assertIsInstance(body["secrets_masked"], int)
 
 
 if __name__ == "__main__":

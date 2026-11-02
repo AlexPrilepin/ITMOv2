@@ -13,11 +13,16 @@ class RecordingLLM:
 
 
 class ReviewServiceTest(unittest.TestCase):
-    def test_review_passes_diff_to_llm_and_returns_comment(self):
+    def test_review_passes_masked_diff_to_llm_and_returns_structured(self):
         llm = RecordingLLM()
         result = ReviewService(llm).review("diff --git a/x b/x")
-        self.assertEqual(result, {"comment": "looks fine"})
+        # Structured response per contract
+        self.assertIn("summary", result)
+        self.assertIn("risks", result)
+        self.assertIn("checks", result)
+        self.assertIn("secrets_masked", result)
         self.assertEqual(len(llm.prompts), 1)
+        # Prompt includes masked diff (no secrets in this case, but diff header present)
         self.assertIn("diff --git a/x b/x", llm.prompts[0])
 
 

@@ -77,7 +77,7 @@ class FeatureBReliabilityTest(unittest.TestCase):
         finally:
             api_module.review_service.llm = original_llm
 
-    def test_success_within_timeout_returns_200_comment(self):
+    def test_success_within_timeout_returns_structured_response(self):
         fast = SlowLLM(sleep_seconds=0.0, result="ok")
         original_llm = api_module.review_service.llm
         api_module.review_service.llm = fast
@@ -85,7 +85,14 @@ class FeatureBReliabilityTest(unittest.TestCase):
             response = self.client.post("/api/reviews", json={"diff": SMALL_DIFF})
             self.assertEqual(response.status_code, 200)
             body = response.json()
-            self.assertIn("comment", body)
+            # Contract per specs/review-api-contract.md
+            self.assertIn("summary", body)
+            self.assertIn("risks", body)
+            self.assertIsInstance(body["risks"], list)
+            self.assertIn("checks", body)
+            self.assertIsInstance(body["checks"], list)
+            self.assertIn("secrets_masked", body)
+            self.assertIsInstance(body["secrets_masked"], int)
         finally:
             api_module.review_service.llm = original_llm
 
