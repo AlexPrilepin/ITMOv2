@@ -3,6 +3,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.dependencies import review_service
+from app.review_service import ReviewService as ReviewServiceType
 
 DIFF_LIMIT = 20000
 
@@ -27,7 +28,12 @@ def create_review(payload: dict):
         return JSONResponse(
             status_code=413, content={"error": "diff too large", "limit": DIFF_LIMIT}
         )
-    return review_service.review(diff)
+    try:
+        return review_service.review(diff)
+    except ReviewServiceType.LLMTimeoutError:
+        return JSONResponse(status_code=504, content={"error": "llm_timeout"})
+    except ReviewServiceType.LLMUnavailableError:
+        return JSONResponse(status_code=502, content={"error": "llm_unavailable"})
 
 
 @app.get("/health")

@@ -13,4 +13,4 @@ class StubLLM:
         return "stub review: no real LLM is connected"
 
 
-review_service = ReviewService(llm=StubLLM())
+review_service = ReviewService(llm=StubLLM(), timeout=10.0)
