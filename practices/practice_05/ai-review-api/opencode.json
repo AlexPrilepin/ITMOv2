@@ -11,7 +11,10 @@
       },
       "diff-tools": {
         "type": "local",
-        "command": [".venv/Scripts/python.exe", "mcp_server/diff_tools.py"],
+        "command": [
+          ".venv/Scripts/python.exe",
+          "mcp_server/diff_tools.py"
+        ],
         "disabled": false,
         "codemode": false
       }
