@@ -1,11 +1,14 @@
+from pathlib import Path
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 
 from app.dependencies import review_service
 from app.review_service import ReviewService as ReviewServiceType
 
 DIFF_LIMIT = 20000
+INDEX_HTML = Path(__file__).parent / "static" / "index.html"
 
 app = FastAPI()
 
@@ -39,3 +42,9 @@ def create_review(payload: dict):
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/", response_class=HTMLResponse)
+def index() -> HTMLResponse:
+    """Страница команды UI (specs/001-review-ui); POST /api/reviews не меняется."""
+    return HTMLResponse(INDEX_HTML.read_text(encoding="utf-8"))

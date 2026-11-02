@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Помощник ревьюера</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --text: #1d2330; --muted: #5d6677; --line: #d9dde5;
+    --accent: #2457c5; --accent-text: #ffffff; --danger: #b42318; --danger-bg: #fdecea;
+    --warn: #8a5a00; --warn-bg: #fff4d6; --ok-bg: #eaf2ff; --code-bg: #f0f2f6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151b; --panel: #1b2029; --text: #e6e9ef; --muted: #9aa3b2; --line: #2e3542;
+      --accent: #6e9bff; --accent-text: #0b1020; --danger: #ff8a80; --danger-bg: #3a1c1a;
+      --warn: #ffd27a; --warn-bg: #3a2f14; --ok-bg: #1d2a44; --code-bg: #232937;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  label { display: block; font-weight: 600; margin-bottom: 6px; }
+  textarea { width: 100%; min-height: 220px; resize: vertical; padding: 10px; border-radius: 8px;
+             border: 1px solid var(--line); background: var(--panel); color: var(--text);
+             font: 13px/1.45 ui-monospace, SFMono-Regular, Consolas, monospace; }
+  textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 10px; }
+  .counter { font-variant-numeric: tabular-nums; color: var(--muted); }
+  .counter.over { color: var(--danger); font-weight: 600; }
+  .limit { color: var(--danger); font-weight: 600; }
+  .spacer { flex: 1; }
+  button { font: inherit; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--line);
+           background: var(--panel); color: var(--text); cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .status { color: var(--muted); }
+  .error { background: var(--danger-bg); color: var(--danger); border-color: transparent; }
+  .error .hint { color: var(--text); margin-top: 4px; }
+  .note { background: var(--warn-bg); color: var(--warn); border-radius: 8px; padding: 8px 12px; margin: 0 0 12px; font-weight: 600; }
+  h2 { font-size: 16px; margin: 16px 0 8px; }
+  h2:first-child { margin-top: 0; }
+  .risk { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
+  .risk-title { font-weight: 600; }
+  .where { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .proof { display: block; background: var(--code-bg); border-radius: 6px; padding: 6px 8px; margin-top: 6px;
+           font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; white-space: pre-wrap; word-break: break-word; }
+  .rule { display: inline-block; background: var(--ok-bg); color: var(--accent); border-radius: 999px; padding: 1px 10px; font-size: 13px; font-weight: 600; margin-top: 4px; }
+  ul { margin: 0; padding-left: 20px; }
+  .empty { color: var(--muted); margin: 0; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Помощник ревьюера PR</h1>
+  <p class="lead">Вставьте unified diff — сервис вернёт краткое описание, до трёх подтверждённых рисков и список проверок. Решение принимает человек.</p>
+
+  <form id="form" class="panel" data-state="idle" novalidate>
+    <label for="diff">Diff (unified)</label>
+    <textarea id="diff" name="diff" spellcheck="false" autocomplete="off" placeholder="Вставьте unified diff (git diff -U)"></textarea>
+    <div class="bar">
+      <span id="counter" class="counter" aria-live="polite">0/20000</span>
+      <span id="limit-warning" class="limit" hidden>Превышен лимит 20 000 символов</span>
+      <span class="spacer"></span>
+      <span id="status" class="status" hidden>Ревью готовится…</span>
+      <button id="clear" type="button">Очистить</button>
+      <button id="submit" class="primary" type="submit" disabled>Получить ревью</button>
+    </div>
+  </form>
+
+  <div id="error" class="panel error" role="alert" hidden></div>
+  <div id="result" class="panel" aria-live="polite" hidden></div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var LIMIT = 20000;
+  var PROOF_MAX = 300;
+  var MANUAL_HINT = "Откройте PR и продолжите ручную проверку без помощника.";
+  var MESSAGES = {
+    400: "Пустой diff. Вставьте содержимое diff и повторите попытку.",
+    413: "Слишком большой diff. Лимит — 20 000 символов.",
+    422: "Неверный запрос. Проверьте формат diff.",
+    502: "LLM недоступен. Попробуйте позже или продолжайте ревью вручную.",
+    504: "LLM не ответил вовремя. Попробуйте ещё раз или продолжайте ревью вручную."
+  };
+  var NETWORK_MESSAGE = "Сетевая ошибка. Проверьте соединение и попробуйте ещё раз.";
+  var SERVER_MESSAGE = "Внутренняя ошибка сервиса. Попробуйте позже.";
+  var SECRETS_NOTE = "Секреты в diff были замаскированы";
+
+  var form = document.getElementById("form");
+  var diff = document.getElementById("diff");
+  var counter = document.getElementById("counter");
+  var limitWarning = document.getElementById("limit-warning");
+  var statusText = document.getElementById("status");
+  var submit = document.getElementById("submit");
+  var clear = document.getElementById("clear");
+  var result = document.getElementById("result");
+  var error = document.getElementById("error");
+  var inFlight = false;
+
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  }
+
+  function setState(state) { form.setAttribute("data-state", state); }
+
+  function refresh() {
+    var length = diff.value.length;
+    var over = length > LIMIT;
+    counter.textContent = length + "/" + LIMIT;
+    counter.classList.toggle("over", over);
+    limitWarning.hidden = !over;
+    submit.disabled = inFlight || over || diff.value.trim() === "";
+    if (!inFlight && form.getAttribute("data-state") !== "success" && form.getAttribute("data-state") !== "error") {
+      setState(length === 0 ? "idle" : "editing");
+    }
+  }
+
+  function hideOutput() {
+    result.hidden = true;
+    error.hidden = true;
+    result.replaceChildren();
+    error.replaceChildren();
+  }
+
+  function showError(message, withHint) {
+    error.replaceChildren(el("div", null, message));
+    if (withHint) error.appendChild(el("div", "hint", MANUAL_HINT));
+    error.hidden = false;
+    setState("error");
+  }
+
+  function truncate(text) {
+    text = String(text);
+    return text.length > PROOF_MAX ? text.slice(0, PROOF_MAX) + "…" : text;
+  }
+
+  function renderRisk(risk) {
+    var box = el("div", "risk");
+    box.appendChild(el("div", "risk-title", risk && risk.title));
+    var evidence = (risk && risk.evidence) || {};
+    if (evidence.type === "diff_line") {
+      box.appendChild(el("div", "where", evidence.file + ":" + evidence.line));
+      box.appendChild(el("code", "proof", truncate(evidence.proof)));
+    } else if (evidence.type === "rule") {
+      box.appendChild(el("span", "rule", evidence.rule));
+    }
+    return box;
+  }
+
+  function renderSuccess(body) {
+    result.replaceChildren();
+    if (Number(body.secrets_masked) > 0) result.appendChild(el("p", "note", SECRETS_NOTE));
+
+    result.appendChild(el("h2", null, "Краткое описание изменения"));
+    result.appendChild(el("p", null, body.summary));
+
+    result.appendChild(el("h2", null, "Риски"));
+    var risks = Array.isArray(body.risks) ? body.risks.slice(0, 3) : [];
+    if (risks.length === 0) result.appendChild(el("p", "empty", "Подтверждённых рисков нет"));
+    risks.forEach(function (risk) { result.appendChild(renderRisk(risk)); });
+
+    result.appendChild(el("h2", null, "Проверки"));
+    var checks = Array.isArray(body.checks) ? body.checks : [];
+    if (checks.length === 0) {
+      result.appendChild(el("p", "empty", "Нет дополнительных проверок"));
+    } else {
+      var list = el("ul");
+      checks.forEach(function (check) { list.appendChild(el("li", null, check)); });
+      result.appendChild(list);
+    }
+    result.hidden = false;
+    setState("success");
+  }
+
+  function finish() {
+    inFlight = false;
+    statusText.hidden = true;
+    clear.disabled = false;
+    refresh();
+  }
+
+  function sendReview(event) {
+    event.preventDefault();
+    if (inFlight || submit.disabled) return;
+    inFlight = true;
+    hideOutput();
+    setState("loading");
+    statusText.hidden = false;
+    submit.disabled = true;
+    clear.disabled = true;
+
+    fetch("/api/reviews", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({ diff: diff.value })
+    }).then(function (response) {
+      if (response.ok) {
+        return response.json().then(renderSuccess, function () { showError(SERVER_MESSAGE, false); });
+      }
+      var message = MESSAGES[response.status];
+      if (message) {
+        showError(message, response.status === 502 || response.status === 504);
+      } else {
+        showError(response.status >= 500 ? SERVER_MESSAGE : NETWORK_MESSAGE, false);
+      }
+    }, function () {
+      showError(NETWORK_MESSAGE, false);
+    }).then(finish, finish);
+  }
+
+  function resetForm() {
+    if (inFlight) return;
+    diff.value = "";
+    hideOutput();
+    setState("idle");
+    refresh();
+    diff.focus();
+  }
+
+  diff.addEventListener("input", function () {
+    if (form.getAttribute("data-state") === "success" || form.getAttribute("data-state") === "error") setState("editing");
+    refresh();
+  });
+  form.addEventListener("submit", sendReview);
+  clear.addEventListener("click", resetForm);
+  refresh();
+})();
+</script>
+</body>
+</html>
