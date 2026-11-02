@@ -1,0 +1,21 @@
+T9: исполнитель выполняет любое решение без сессии и проверки прав
+
+> POST /assistant/execute
+> headers: {}
+> body: {"decision": {"tool": "export_profiles", "arguments": {}}}
+< 401 {"error": "login required"}
+
+> POST /assistant/execute
+> headers: {"X-Token": "<token>"}
+> body: {"decision": {"tool": "read_file", "arguments": {"path": "files/bob/receipt.txt"}}}
+< 403 {"error": "tool not allowed"}
+
+> POST /assistant/execute
+> headers: {"X-Token": "<token>"}
+> body: {"decision": {"tool": "delete_tree", "arguments": {"path": "files"}}}
+< 403 {"error": "tool not allowed"}
+
+> GET /files?user=alice&path=receipt.txt
+> headers: {"X-Token": "<token>"}
+> body: null
+< 200 {"content": "TEST_ALICE receipt: chair, 5000 RUB"}

@@ -1,0 +1,107 @@
+[
+  {
+    "id": "T1",
+    "title": "клиент с заголовком X-Role: staff получает экспорт",
+    "vulnerable": false,
+    "effect": "статус 403",
+    "evidence": "T1.txt"
+  },
+  {
+    "id": "T2",
+    "title": "доступ к чужим объектам и без аутентификации",
+    "vulnerable": false,
+    "effect": "отказ",
+    "evidence": "T2.txt"
+  },
+  {
+    "id": "T3",
+    "title": "SQL из параметров запроса",
+    "vulnerable": false,
+    "effect": "строк: profile=0, search=0",
+    "evidence": "T3.txt"
+  },
+  {
+    "id": "T4",
+    "title": "цена задаётся клиентом",
+    "vulnerable": false,
+    "effect": "статус 201, цена 5000",
+    "evidence": "T4.txt"
+  },
+  {
+    "id": "T5",
+    "title": "чтение служебной заметки через путь",
+    "vulnerable": false,
+    "effect": "статус 403",
+    "evidence": "T5.txt"
+  },
+  {
+    "id": "T6",
+    "title": "разметка отзыва попадает в HTML без экранирования",
+    "vulnerable": false,
+    "effect": "экранировано",
+    "evidence": "T6.txt"
+  },
+  {
+    "id": "T7",
+    "title": "журнал без аутентификации с паролями и токенами",
+    "vulnerable": false,
+    "effect": "статус 401",
+    "evidence": "T7.txt"
+  },
+  {
+    "id": "T8",
+    "title": "недоверенные отзывы (в т.ч. по чужому товару) в одном промпте с инструментами",
+    "vulnerable": false,
+    "effect": "отделено",
+    "evidence": "T8.txt"
+  },
+  {
+    "id": "T9",
+    "title": "исполнитель выполняет любое решение без сессии и проверки прав",
+    "vulnerable": false,
+    "effect": "отказ",
+    "evidence": "T9.txt"
+  },
+  {
+    "id": "T10",
+    "title": "контекст помощника по чужому заказу и без сессии",
+    "vulnerable": false,
+    "effect": "отказ",
+    "evidence": "T10.txt"
+  },
+  {
+    "id": "T11",
+    "title": "ответ об ошибке раскрывает внутренние детали",
+    "vulnerable": false,
+    "effect": "статус 400: {'error': 'unknown product'}",
+    "evidence": "T11.txt"
+  },
+  {
+    "id": "T12",
+    "title": "нет аудита действий помощника; журнал смешан с секретами",
+    "vulnerable": false,
+    "effect": "аудит инструментов: есть, пароли в журнале: нет",
+    "evidence": "T12.txt"
+  },
+  {
+    "id": "T13",
+    "title": "отзыв без аутентификации",
+    "vulnerable": false,
+    "effect": "статус 401",
+    "evidence": "T13.txt"
+  },
+  {
+    "id": "T15",
+    "title": "CSRF/CORS: чужой сайт может отправить запрос с токеном и прочитать ответ",
+    "vulnerable": false,
+    "effect": "Access-Control-Allow-Origin: нет, cookie: нет — токен только в заголовке X-Token",
+    "evidence": "T15.txt"
+  },
+  {
+    "id": "T16",
+    "title": "clickjacking и отсутствие CSP у HTML",
+    "vulnerable": false,
+    "effect": "X-Frame-Options: DENY, CSP: default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'",
+    "evidence": "T16.txt"
+  }
+]

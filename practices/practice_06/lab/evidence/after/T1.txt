@@ -1,0 +1,6 @@
+T1: клиент с заголовком X-Role: staff получает экспорт
+
+> GET /admin/export
+> headers: {"X-Token": "<token>", "X-Role": "staff"}
+> body: null
+< 403 {"error": "staff only"}

@@ -1,0 +1,11 @@
+T10: контекст помощника по чужому заказу и без сессии
+
+> GET /assistant/context?order_id=2
+> headers: {"X-Token": "<token>"}
+> body: null
+< 403 {"error": "forbidden"}
+
+> GET /assistant/context?order_id=1
+> headers: {}
+> body: null
+< 401 {"error": "login required"}

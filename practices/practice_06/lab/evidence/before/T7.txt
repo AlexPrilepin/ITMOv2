@@ -1,0 +1,6 @@
+T7: журнал без аутентификации с паролями и токенами
+
+> GET /debug/logs
+> headers: {}
+> body: null
+< 200 [{"method": "GET", "target": "/health", "body": {}, "headers": {"Accept-Encoding": "identity", "Host": "127.0.0.1:8066", "User-Agent": "Python-urllib/3.10", "Connection": "close"}}, {"method": "POST", "target": "/login", "body": {"username": "alice", "password": "learn-alice"}, "headers": {"Accept-Encoding": "identity", "Content-Length": "48", "Host": "127.0.0.1:8066", "User-Agent": "Python-urllib/3.10", "Content-Type": "application/json", "Connection": "close"}}, {"method": "POST", "target": "/login", "body": {"username": "bob", "password": "learn-bob"}, "headers": {"Accept-Encoding": "identi

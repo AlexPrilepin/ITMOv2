@@ -1,0 +1,11 @@
+T3: SQL из параметров запроса
+
+> GET /profile?id=1%20OR%201%3D1
+> headers: {"X-Token": "<token>"}
+> body: null
+< 400 {"error": "invalid id"}
+
+> GET /search?q=%27%20OR%20%271%27%3D%271
+> headers: {"X-Token": "<token>"}
+> body: null
+< 403 {"error": "staff only"}

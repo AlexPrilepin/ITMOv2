@@ -1,0 +1,21 @@
+T9: исполнитель выполняет любое решение без сессии и проверки прав
+
+> POST /assistant/execute
+> headers: {}
+> body: {"decision": {"tool": "export_profiles", "arguments": {}}}
+< 200 [{"id": 1, "name": "TEST_ALICE", "email": "alice@example.invalid", "address": "TEST_ADDRESS_A"}, {"id": 2, "name": "TEST_BOB", "email": "bob@example.invalid", "address": "TEST_ADDRESS_B"}]
+
+> POST /assistant/execute
+> headers: {"X-Token": "<token>"}
+> body: {"decision": {"tool": "read_file", "arguments": {"path": "files/bob/receipt.txt"}}}
+< 200 {"content": "TEST_BOB receipt: lamp, 1500 RUB"}
+
+> POST /assistant/execute
+> headers: {"X-Token": "<token>"}
+> body: {"decision": {"tool": "delete_tree", "arguments": {"path": "files"}}}
+< 200 {"deleted": "files"}
+
+> GET /files?user=alice&path=receipt.txt
+> headers: {"X-Token": "<token>"}
+> body: null
+< 500 {"error": "[Errno 2] No such file or directory: '/sessions/rcw-01vijwcxnom1r7iztrrjhnz9/tmp/itmo-practice-06-1u4oei7m/files/alice/receipt.txt'", "type": "FileNotFoundError"}

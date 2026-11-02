@@ -1,0 +1,26 @@
+test_t15_no_cors_headers_so_cross_site_requests_cannot_use_token (test_security.HttpHeadersSecurityTest) ... ok
+test_t16_html_cannot_be_framed_and_has_csp (test_security.HttpHeadersSecurityTest) ... ok
+test_t11_bad_input_has_no_internal_details (test_security.SecurityTest) ... ok
+test_t11_non_string_fields_are_rejected_not_crashing (test_security.SecurityTest) ... ok
+test_t13_review_requires_session (test_security.SecurityTest) ... ok
+test_t1_client_role_header_does_not_grant_export (test_security.SecurityTest) ... ok
+test_t1_staff_session_exports_without_header (test_security.SecurityTest) ... ok
+test_t2_files_only_own (test_security.SecurityTest) ... ok
+test_t2_orders_only_own (test_security.SecurityTest) ... ok
+test_t2_profile_requires_owner (test_security.SecurityTest) ... ok
+test_t3_profile_id_is_not_sql (test_security.SecurityTest) ... ok
+test_t3_search_is_parameterized_and_staff_only (test_security.SecurityTest) ... ok
+test_t4_price_comes_from_catalog (test_security.SecurityTest) ... ok
+test_t5_files_cannot_reach_private_note (test_security.SecurityTest) ... ok
+test_t6_reviews_are_escaped (test_security.SecurityTest) ... ok
+test_t7_debug_logs_not_public_and_without_secrets (test_security.SecurityTest) ... ok
+test_t8_t10_context_is_own_order_and_marks_untrusted_reviews (test_security.SecurityTest) ... ok
+test_t9_customer_cannot_run_dangerous_tools (test_security.SecurityTest) ... ok
+test_t9_delete_tree_not_available_even_for_staff (test_security.SecurityTest) ... ok
+test_t9_execute_requires_session (test_security.SecurityTest) ... ok
+test_t9_export_profiles_not_available_through_assistant (test_security.SecurityTest) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 0.592s
+
+OK
