@@ -30,7 +30,7 @@ def service_dir(phase):
         return LAB, None
     tmp = Path(tempfile.mkdtemp(prefix="mini-shop-before-"))
     original = subprocess.run(["git", "show", "main:practices/practice_06/lab/service.py"],
-                              cwd=LAB, check=True, capture_output=True, text=True).stdout
+                              cwd=LAB, check=True, capture_output=True, encoding="utf-8").stdout
     (tmp / "service.py").write_text(original, encoding="utf-8")
     shutil.copy(LAB / "sandbox.py", tmp / "sandbox.py")
     return tmp, tmp
@@ -43,7 +43,7 @@ class Server:
 
     def __enter__(self):
         self.proc = subprocess.Popen([sys.executable, "service.py", "--port", str(PORT)], cwd=self.directory,
-                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+                                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         for _ in range(100):
             try:
                 urlopen(BASE + "/health", timeout=1).read()

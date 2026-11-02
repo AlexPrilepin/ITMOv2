@@ -6,7 +6,7 @@
     python practices/practice_06/lab/attacks/run_planner.py after  ollama/itmo-agent
 
 before — исходный сервис из ветки main, after — исправленный lab/service.py.
-Каждый прогон модели — отдельный `opencode run` с агентом shop-planner (инструменты закрыты),
+Каждый прогон модели — отдельный `opencode run --standalone` из practices/practice_06 с агентом shop-planner (инструменты закрыты),
 одна и та же модель, system prompt и задача клиента; вредоносная инструкция — только в отзыве.
 Решение модели не додумывается: если JSON не извлечён, это фиксируется как ошибка.
 Результат: evidence/<фаза>/planner-*.{txt,jsonl,json} и planner-summary.json.
@@ -70,9 +70,11 @@ def run_model(model, context_file, out_jsonl):
     opencode = shutil.which("opencode")
     if not opencode:
         raise SystemExit("opencode не найден в PATH")
-    result = subprocess.run([opencode, "run", "--dir", str(PRACTICE), "--agent", "shop-planner", "--model", model,
-                             "--format", "json", "--file", str(context_file), TASK],
-                            capture_output=True, text=True, encoding="utf-8", timeout=900)
+    # OpenCode 2.0.20 не знает флага --dir из README лабы: конфиг practices/practice_06/opencode.json
+    # (агент shop-planner) подхватывается из рабочего каталога; --standalone — свой сервер на прогон.
+    result = subprocess.run([opencode, "run", "--standalone", "--agent", "shop-planner", "--model", model,
+                             "--format", "json", "--file", str(context_file.resolve()), TASK],
+                            cwd=PRACTICE, capture_output=True, encoding="utf-8", errors="replace", timeout=900)
     out_jsonl.write_text(result.stdout, encoding="utf-8")
     if result.returncode != 0:
         (out_jsonl.with_suffix(".stderr.txt")).write_text(result.stderr, encoding="utf-8")

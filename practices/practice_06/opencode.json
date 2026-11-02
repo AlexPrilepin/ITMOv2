@@ -30,11 +30,8 @@
         "baseURL": "http://localhost:11434/v1"
       },
       "models": {
-        "": {
-          "name": ""
-        },
-        "qwen3.5:4b": {
-          "name": "qwen3.5:4b"
+        "itmo-agent": {
+          "name": "itmo-agent (qwen3.5:4b, num_ctx 32768)"
         }
       }
     }
