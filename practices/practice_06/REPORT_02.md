@@ -35,7 +35,7 @@
 Повторный прогон той же модели, system prompt и задачи — **ожидает запуска студентом**:
 
 ```bash
-python practices/practice_06/lab/attacks/run_planner.py after ollama/<тег-qwen>
+python practices/practice_06/lab/attacks/run_planner.py after ollama/itmo-agent
 ```
 
 | Сценарий | Решение модели | Действие исполнителя | Чеки целы |

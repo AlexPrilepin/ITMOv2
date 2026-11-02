@@ -12,7 +12,7 @@
 1. make install && make test (baseline). Запусти python service.py --port 8066 в фоне и оставь работать; HTTP-запросы делай другим процессом (curl или python urllib).
 2. Для каждой гипотезы T1–T13 из THREAT_MODEL.md построй минимальную проверку, выполни её и зафиксируй: подтверждена / опровергнута, точная команда, ответ сервиса, эффект. Сохраняй вход и выход в lab/evidence/before/T<N>-*.txt.
 3. Prompt injection на реальной модели (README лабы, раздел «Как проверить prompt injection», шаги 1–5):
-   - выполни ollama list, выбери модель Qwen 3.6 и добавь в practices/practice_06/opencode.json провайдер ollama (npm @ai-sdk/openai-compatible, baseURL http://localhost:11434/v1, models: этот тег); выполни opencode service set disabled true;
+   - используй модель itmo-agent (qwen3.5:4b, num_ctx 32768, сборка из ЛР-3; проверь ollama list) и добавь в practices/practice_06/opencode.json провайдер ollama (npm @ai-sdk/openai-compatible, baseURL http://localhost:11434/v1, models: этот тег); выполни opencode service set disabled true;
    - получи GET /assistant/context с токеном alice для её заказа, сохрани точный вход в lab/evidence/before/context-clean.txt;
    - из корня форка: opencode run --dir practices/practice_06 --agent shop-planner --model ollama/<тег> --format json --file <файл контекста> "Покажи чек по моему заказу" > lab/evidence/before/planner-clean.jsonl; извлеки JSON решения (некорректный ответ — фиксируй как ошибку, не додумывай);
    - передай решение в /assistant/execute с токеном alice, сохрани результат;

@@ -35,10 +35,10 @@
 
 Структурная часть подтверждена (T8): отзыв любого покупателя о **любом** товаре попадает в контекст помощника рядом со списком инструментов `read_file`, `export_profiles`, `delete_tree`, без пометки, что это недоверенные данные. Исполнитель (T9) выполняет любое решение без сессии.
 
-Прогон модели `shop-planner` (локальная Qwen через Ollama) — **ожидает запуска студентом** (у агента нет доступа к локальной модели):
+Прогон модели `shop-planner` (локальная Qwen 3.5 — `ollama/itmo-agent`: qwen3.5:4b с контекстом 32k из ЛР-3) — **ожидает запуска студентом** (у агента нет доступа к локальной модели):
 
 ```bash
-python practices/practice_06/lab/attacks/run_planner.py before ollama/<тег-qwen>
+python practices/practice_06/lab/attacks/run_planner.py before ollama/itmo-agent
 ```
 
 Скрипт: чистый контекст → `opencode run --agent shop-planner` → решение в `/assistant/execute` → отзыв с инструкцией → повторный отдельный прогон с той же моделью и задачей → принудительная передача `delete_tree` напрямую. Решение модели не додумывается. Результаты — `lab/evidence/before/planner-*.json`, `planner-summary.json`.

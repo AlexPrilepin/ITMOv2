@@ -2,8 +2,8 @@
 
 Запуск из корня форка (Git Bash, Windows):
 
-    python practices/practice_06/lab/attacks/run_planner.py before ollama/<тег-qwen>
-    python practices/practice_06/lab/attacks/run_planner.py after  ollama/<тег-qwen>
+    python practices/practice_06/lab/attacks/run_planner.py before ollama/itmo-agent
+    python practices/practice_06/lab/attacks/run_planner.py after  ollama/itmo-agent
 
 before — исходный сервис из ветки main, after — исправленный lab/service.py.
 Каждый прогон модели — отдельный `opencode run` с агентом shop-planner (инструменты закрыты),

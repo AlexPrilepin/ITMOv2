@@ -9,7 +9,7 @@
       "permission": {
         "*": "deny",
         "read": {
-          "*": "deny",
+          "*": "deny"
         }
       }
     },
@@ -17,7 +17,26 @@
       "description": "Model under test: produces a shop action without executing tools",
       "mode": "primary",
       "prompt": "{file:./planner-system.txt}",
-      "permission": { "*": "deny" }
+      "permission": {
+        "*": "deny"
+      }
+    }
+  },
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama local",
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      },
+      "models": {
+        "": {
+          "name": ""
+        },
+        "qwen3.5:4b": {
+          "name": "qwen3.5:4b"
+        }
+      }
     }
   }
 }
