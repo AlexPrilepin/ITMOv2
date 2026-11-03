@@ -1,0 +1,116 @@
+{
+  "passed": 22,
+  "total": 22,
+  "results": [
+    {
+      "scenario": "idle: элементы, счётчик 0/20000, кнопка неактивна",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "scenario": "успех: summary, риски, проверки",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "scenario": "SEC-1/D3: отметка о маскировании при secrets_masked > 0",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "scenario": "SEC-1: риск по правилу SEC-1 показан меткой",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "scenario": "D7: исходного секрета нет на странице",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "scenario": "D1/D5: diff_line показан как file:line",
+      "passed": true,
+      "detail": "['app/config.py:11', 'app/config.py:12']"
+    },
+    {
+      "scenario": "QA-1: неподтверждённый риск не показан",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "scenario": "XSS: HTML из ответа модели выводится текстом",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "scenario": "checks: список строк",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "scenario": "502: сообщение и подсказка о ручном ревью",
+      "passed": true,
+      "detail": "LLM недоступен. Попробуйте позже или продолжайте ревью вручную.\nОткройте PR и продолжите ручную проверку без помощника."
+    },
+    {
+      "scenario": "504: сообщение и подсказка о ручном ревью",
+      "passed": true,
+      "detail": "LLM не ответил вовремя. Попробуйте ещё раз или продолжайте ревью вручную.\nОткройте PR и продолжите ручную проверку без помощника."
+    },
+    {
+      "scenario": "400: сообщение по HTTP-статусу",
+      "passed": true,
+      "detail": "Пустой diff. Вставьте содержимое diff и повторите попытку."
+    },
+    {
+      "scenario": "413: сообщение по HTTP-статусу",
+      "passed": true,
+      "detail": "Слишком большой diff. Лимит — 20 000 символов."
+    },
+    {
+      "scenario": "422: сообщение по HTTP-статусу",
+      "passed": true,
+      "detail": "Неверный запрос. Проверьте формат diff."
+    },
+    {
+      "scenario": "500: сообщение по HTTP-статусу",
+      "passed": true,
+      "detail": "Внутренняя ошибка сервиса. Попробуйте позже."
+    },
+    {
+      "scenario": "сеть: сообщение о сетевой ошибке",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "scenario": "loading: кнопка заблокирована, ровно один запрос",
+      "passed": true,
+      "detail": "state=loading, disabled=True, requests=1"
+    },
+    {
+      "scenario": "лимит: 20000 — можно отправить, 20001 — нельзя и есть предупреждение",
+      "passed": true,
+      "detail": "('20000/20000', True) ('20001/20000', True, True)"
+    },
+    {
+      "scenario": "пробелы: кнопка неактивна",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "scenario": "очистить: поле пустое, 0/20000, результат скрыт, idle",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "scenario": "приватность: localStorage и sessionStorage пусты",
+      "passed": true,
+      "detail": "[0, 0]"
+    },
+    {
+      "scenario": "приватность: в консоли нет diff, секретов и ответов; страница ничего не пишет",
+      "passed": true,
+      "detail": "сообщений браузера о статусах: 7"
+    }
+  ]
+}
